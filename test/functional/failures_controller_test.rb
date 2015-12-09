@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'resque/failure/redis_multi_queue'
 
 module ResqueWeb
   class FailuresControllerTest < ActionController::TestCase
@@ -68,6 +69,20 @@ module ResqueWeb
         Resque::Failure.expects(:requeue_queue).with('myqueue')
         visit(:retry_all, {:queue=>"myqueue"}, :method => :put)
         assert_redirected_to failures_path(:queue=>'myqueue')
+      end
+    end
+
+    describe "With Multiple Failed Queues" do
+      setup do
+        @routes = Engine.routes
+        Resque::Failure.backend = Resque::Failure::RedisMultiQueue
+      end
+
+      describe "GET /failures" do
+        it "renders the index page" do
+          visit(:index)
+          assert_template :index
+        end
       end
     end
   end
