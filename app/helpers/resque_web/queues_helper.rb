@@ -60,7 +60,7 @@ module ResqueWeb
 
       if size > 0
         css_class = "badge badge-important"
-        badge = link_to(size, failure_path(failed_queue))
+        badge = link_to(size, failures_path(:queue => failed_queue))
       else
         css_class = "badge"
         badge = size.to_s
