@@ -79,8 +79,12 @@ module ResqueWeb
       end
 
       describe "GET /failures" do
-        it "renders the index page" do
+        it "renders the index page when not supplied a queue name" do
           visit(:index)
+          assert_template :index
+        end
+        it "renders the index page when supplied a queue name" do
+          visit(:index, {:queue => "my_queue"})
           assert_template :index
         end
       end
