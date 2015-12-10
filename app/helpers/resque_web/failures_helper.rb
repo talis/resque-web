@@ -1,19 +1,17 @@
 module ResqueWeb
   module FailuresHelper
+    def self.included klass
+      klass.class_eval do
+        include FailureQueueNameHelper
+      end
+    end
+    
     def each_failure(&block)
       Resque::Failure.each(failure_start_at, failure_per_page, params[:queue], params[:class], &block)
     end
 
     def failure_date_format
       "%Y/%m/%d %T %z"
-    end
-
-    def multiple_failure_queues?
-      @multiple_failure_queues ||= Resque::Failure.queues.size > 1
-    end
-
-    def failure_queue
-      multiple_failure_queues? ? params[:queue] : 'failed'
     end
 
     def failure_queue_name

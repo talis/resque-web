@@ -1,5 +1,6 @@
 module ResqueWeb
   class FailuresController < ResqueWeb::ApplicationController
+    include ResqueWeb::FailureQueueNameHelper
 
     # Display all jobs in the failure queue
     #
@@ -17,8 +18,7 @@ module ResqueWeb
 
     # destroy all jobs from the failure queue
     def destroy_all
-      queue = params[:queue] || 'failed'
-      Resque::Failure.clear(queue)
+      Resque::Failure.clear(failure_queue)
       redirect_to failures_path(redirect_params)
     end
 
@@ -30,11 +30,7 @@ module ResqueWeb
 
     # retry all jobs from the failure queue
     def retry_all
-      if params[:queue].present? && params[:queue]!="failed"
-        Resque::Failure.requeue_queue(params[:queue])
-      else
-        (Resque::Failure.count-1).downto(0).each { |id| reque_single_job(id) }
-      end
+      (Resque::Failure.count(failure_queue)-1).downto(0).each { |id| reque_single_job(id) }
       redirect_to failures_path(redirect_params)
     end
 
@@ -45,13 +41,8 @@ module ResqueWeb
       if Resque::Failure.respond_to?(:requeue_and_remove)
         Resque::Failure.requeue_and_remove(id)
       else
-        if params[:queue].present?
-          Resque::Failure.requeue(id, params[:queue])
-          Resque::Failure.remove(id, params[:queue])
-        else
-          Resque::Failure.requeue(id)
-          Resque::Failure.remove(id)
-        end
+        Resque::Failure.requeue(id, failure_queue)
+        Resque::Failure.remove(id, failure_queue)
       end
     end
 
