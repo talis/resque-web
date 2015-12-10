@@ -45,8 +45,13 @@ module ResqueWeb
       if Resque::Failure.respond_to?(:requeue_and_remove)
         Resque::Failure.requeue_and_remove(id)
       else
-        Resque::Failure.requeue(id)
-        Resque::Failure.remove(id)
+        if params[:queue].present?
+          Resque::Failure.requeue(id, params[:queue])
+          Resque::Failure.remove(id, params[:queue])
+        else
+          Resque::Failure.requeue(id)
+          Resque::Failure.remove(id)
+        end
       end
     end
 
