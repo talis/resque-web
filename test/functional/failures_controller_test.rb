@@ -86,6 +86,22 @@ module ResqueWeb
       end
 
       describe "PUT /failures/retry_all" do
+        it "retries all failures on all queues if no queue specified" do
+          Resque::Failure.stubs(:queues).returns(%w(foo bar))
+          Resque::Failure.stubs(:count).with('foo').returns(2)
+          Resque::Failure.stubs(:count).with('bar').returns(2)
+          Resque::Failure.expects(:requeue).with(0, 'foo')
+          Resque::Failure.expects(:remove).with(0, 'foo')
+          Resque::Failure.expects(:requeue).with(1, 'foo')
+          Resque::Failure.expects(:remove).with(1, 'foo')
+          Resque::Failure.expects(:requeue).with(0, 'bar')
+          Resque::Failure.expects(:remove).with(0, 'bar')
+          Resque::Failure.expects(:requeue).with(1, 'bar')
+          Resque::Failure.expects(:remove).with(1, 'bar')
+          visit(:retry_all, nil, :method => :put)
+          assert_redirected_to failures_path
+        end
+        
         it "retries all failures using the queue name if queue specified" do
           Resque::Failure.stubs(:count).returns(2)
           Resque::Failure.stubs(:requeue).returns(true)
