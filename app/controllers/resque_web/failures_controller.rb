@@ -12,7 +12,7 @@ module ResqueWeb
 
     # remove an individual job from the failure queue
     def destroy
-      Resque::Failure.remove(params[:id])
+      Resque::Failure.remove(params[:id], params[:queue])
       redirect_to failures_path(redirect_params)
     end
 
