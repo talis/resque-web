@@ -4,6 +4,8 @@
     <dt>Error</dt>
     <dd>Job <%= id %> could not be parsed; perhaps it contains invalid JSON?</dd>
     <% else %>
+    <dt>ID</dt>
+    <dd><%= job['id'] %></dd>
     <dt>Worker</dt>
     <dd>
       <%= job['worker'].split(':')[0...2].join(':') %>
