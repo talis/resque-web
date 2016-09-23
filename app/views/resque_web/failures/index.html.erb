@@ -24,7 +24,7 @@
 
   <ul class="failed">
     <% each_failure do |id, job| %>
-      <%= render partial: 'failed_job', locals: { id: (job['id'] || id), job: job } %>
+      <%= render partial: 'failed_job', locals: { id: id, job: job } %>
     <% end %>
   </ul>
 
